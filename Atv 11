@@ -1,0 +1,274 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+#define sucesso 0
+
+int contarCaracteres(char *Arquivo) {
+
+	int contador = 0;
+	char c;
+
+	FILE *arquivo = fopen(Arquivo, "r");
+	if (arquivo == NULL) {
+		printf("Erro ao abrir o arquivo.\n");
+		return -1;
+	}
+
+	while ((c = fgetc(arquivo)) != EOF) {
+		if (c != ' ' && c != '\n' && c != '\t') {
+			contador++;
+		}
+	}
+	fclose(arquivo);
+	return contador;
+}
+
+
+int contarLinhasArquivo(char *Arquivo) {
+	FILE *arquivo;
+	char c;
+	int numLinhas = 0;
+	int temCaracteresNaLinha = 0;
+
+	arquivo= fopen(Arquivo, "r");
+	if (arquivo == NULL) {
+		printf("Erro ao abrir o arquivo.\n");
+		return -1;
+	}
+
+	while ((c = fgetc(arquivo)) != EOF) {
+		if (c == '\n') {
+			numLinhas++;
+			temCaracteresNaLinha = 0;
+		} else {
+			temCaracteresNaLinha = 1;
+		}
+	}
+
+	// Se o C:ltimo caractere do arquivo nC#o for '\n', conta como uma linha adicional
+	if (temCaracteresNaLinha) {
+		numLinhas++;
+	}
+
+	fclose(arquivo);
+	return numLinhas;
+}
+
+void lerNumerosArquivo(char *Arquivo) {
+	FILE *arquivo;
+	int numero;
+
+	arquivo = fopen(Arquivo, "a+");
+	if (arquivo == NULL) {
+		printf("Erro ao abrir o arquivo.\n");
+		return;
+	}
+
+	printf("NC:meros encontrados no arquivo:\n");
+
+	while (fscanf(arquivo, "%d", &numero) != EOF) {
+		printf("%d ", numero);
+	}
+
+	printf("\n");
+	fclose(arquivo);
+}
+
+
+void questao04() {
+	FILE *file;
+	char filename[100] = "dados.txt";
+	char nome[100], endereco[100];
+	int matricula;
+
+	file = fopen(filename, "w");
+	if (file == NULL) {
+		printf("Erro ao abrir o arquivo.\n");
+		return;
+	}
+
+	printf("Digite o nome: ");
+    scanf(" %[^\n]", nome);  // Lê o nome incluindo espaços
+    printf("Digite o endereço: ");
+    scanf(" %[^\n]", endereco);  // Lê o endereço incluindo espaços
+    printf("Digite a matrícula: ");
+    scanf("%d", &matricula);
+
+	fprintf(file, "Nome: %s\nEndereco: %s\nMatricula: %d\n", nome, endereco, matricula);
+
+	fclose(file);
+	printf("Dados gravados no arquivo '%s'.\n", filename);
+}
+
+void questao05() {
+	FILE *file;
+	char filename[100] = "numeros.bin";
+	int num;
+
+	file = fopen(filename, "wb");
+	if (file == NULL) {
+		printf("Erro ao abrir o arquivo.\n");
+		return;
+	}
+
+	printf("Digite numeros inteiros (numero negativo para parar):\n");
+	while (1) {
+		scanf("%d", &num);
+		if (num < 0) break;
+		fwrite(&num, sizeof(int), 1, file);
+	}
+
+	fclose(file);
+	printf("Numeros gravados no arquivo '%s'.\n", filename);
+}
+
+void questao06() {
+	FILE *file;
+	char filename[100] = "dados.txt";
+	char linha[256];
+
+	file = fopen(filename, "r");
+	if (file == NULL) {
+		printf("Erro ao abrir o arquivo.\n");
+		return;
+	}
+
+	printf("Dados lidos do arquivo:\n");
+	while (fgets(linha, sizeof(linha), file)) {
+		printf("%s", linha);
+	}
+
+	fclose(file);
+}
+
+void questao07() {
+	FILE *file;
+	char filename[100] = "numeros.bin";
+	int num;
+
+	file = fopen(filename, "rb");
+	if (file == NULL) {
+		printf("Erro ao abrir o arquivo.\n");
+		return;
+	}
+
+	printf("Numeros lidos do arquivo:\n");
+	while (fread(&num, sizeof(int), 1, file)) {
+		printf("%d ", num);
+	}
+
+	fclose(file);
+	printf("\n");
+}
+
+void questao08() {
+	FILE *file;
+	char filename[100] = "agenda.txt";
+	char nome[100], endereco[100];
+	int opcao, matricula;
+
+	file = fopen(filename, "a+");
+	if (file == NULL) {
+		printf("Erro ao abrir o arquivo.\n");
+		return;
+	}
+
+	do {
+		printf("\n1. Adicionar novo contato\n");
+		printf("2. Listar contatos\n");
+		printf("3. Voltar ao menu principal\n");
+		printf("Escolha uma opcao: ");
+		scanf("%d", &opcao);
+
+		if (opcao == 1) {
+			printf("Digite o nome: ");
+			scanf(" %[^\n]", nome);
+			printf("Digite o endereco: ");
+			scanf(" %[^\n]", endereco);
+			printf("Digite a matricula: ");
+			scanf("%d", &matricula);
+			fprintf(file, "Nome: %s\nEndereco: %s\nMatricula: %d\n", nome, endereco, matricula);
+			fflush(file);
+			printf("Contato adicionado.\n");
+		} else if (opcao == 2) {
+			char linha[256];
+			rewind(file);
+			printf("Contatos:\n");
+			while (fgets(linha, sizeof(linha), file)) {
+				printf("%s", linha);
+			}
+		}
+	} while (opcao != 3);
+
+	fclose(file);
+}
+
+int main() {
+	int opcao;
+	char Arquivo[] = "arquivo.txt";
+	char Arquivo3[] = "arquivo3.txt";
+
+
+	do {
+		printf("\n==== MENU ====\n");
+		printf("1. Questão 01\n");
+		printf("2. Questão 02\n");
+		printf("3. Questão 03\n");
+		printf("4. Questão 04\n");
+		printf("5. Questão 05\n");
+		printf("6. Questão 06\n");
+		printf("7. Questão 07\n");
+		printf("8. Questão 08\n");
+		printf("0. Sair\n");
+		printf("Escolha uma opcao: ");
+		scanf("%d", &opcao);
+
+		switch(opcao) {
+		case 1:
+			 
+			int resultado = contarCaracteres(Arquivo);
+
+			if (resultado != -1) {
+				printf("O numero de caracteres no arquivo (sem contar espaços e quebras de linha): %d\n", resultado);
+			}
+			break;
+		case 2:
+			
+			int numLinhas = contarLinhasArquivo(Arquivo);
+
+			if (numLinhas != -1) {
+				printf("O arquivo tem %d linha(s).\n", numLinhas);
+			}
+			break;
+		case 3:
+
+			lerNumerosArquivo(Arquivo3);
+			
+			break;
+		case 4:
+			questao04();
+			break;
+		case 5:
+			questao05();
+			break;
+		case 6:
+			questao06();
+			break;
+		case 7:
+			questao07();
+			break;
+		case 8:
+			questao08();
+			break;
+		case 0:
+			printf("Saindo...\n");
+			break;
+		default:
+			printf("Opcao invalida!\n");
+			break;
+		}
+	} while (opcao != 0);
+	return sucesso;
+}
